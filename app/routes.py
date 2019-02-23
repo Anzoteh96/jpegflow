@@ -26,7 +26,7 @@ def upload_file():
         # submit a empty part without filename
         if file.filename == '':
             flash('No selected file')
-            return redirect(url_for('index'))
+            return redirect(url_for('upload_file'))
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
@@ -41,3 +41,8 @@ def uploaded_file(filename):
 @app.route('/uploads/<filename>')
 def send_file(filename):
     return send_from_directory(UPLOAD_FOLDER, filename)
+
+
+@app.route('/return_file/<filename>')
+def return_file(filename):
+    return send_from_directory(UPLOAD_FOLDER, filename, as_attachment = True)

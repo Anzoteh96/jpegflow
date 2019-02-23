@@ -9,6 +9,7 @@
 
 {% if filename %}
 <h1>test<img src="{{ url_for('send_file', filename=filename) }}"></h1>
+<a href="{{ url_for('return_file', filename=filename)}}" target="blank"><button>Download!</button></a>
 {% else %}
 <h1>didnt work rip</h1>
 {% endif %}
