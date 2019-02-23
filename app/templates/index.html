@@ -1,8 +1,17 @@
-<!doctype html>
+<html>
+
 <title>Upload new File</title>
 <h1>Upload new File</h1>
 <form method=post enctype=multipart/form-data>
   <p><input type=file name=file>
-     <input type=submit value=Upload>
-     
+     <input type=submit value=Upload>   
 </form>
+
+{% if filename %}
+<h1>test<img src="{{ url_for('send_file', filename=filename) }}"></h1>
+{% else %}
+<h1>didnt work rip</h1>
+{% endif %}
+
+
+</html>

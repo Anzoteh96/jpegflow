@@ -1,10 +1,10 @@
 import os
 from app import app
 from os.path import join, dirname, realpath
-from flask import request, redirect, url_for, render_template, flash
+from flask import request, redirect, url_for, render_template, flash, send_from_directory
 from werkzeug.utils import secure_filename
 
-UPLOAD_FOLDER = join(dirname(realpath(__file__)), 'uploads')
+UPLOAD_FOLDER = join(dirname(realpath(__file__)), 'static/uploads/')
 ALLOWED_EXTENSIONS = set(['png','jpg','jpeg','gif'])
 
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
@@ -30,6 +30,14 @@ def upload_file():
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-            return redirect(url_for('upload_file',
+            return redirect(url_for('uploaded_file',
                                     filename=filename))
     return render_template('index.html', title="Images")
+
+@app.route('/show/<filename>')
+def uploaded_file(filename):
+    return render_template('index.html', filename=filename)
+
+@app.route('/uploads/<filename>')
+def send_file(filename):
+    return send_from_directory(UPLOAD_FOLDER, filename)
