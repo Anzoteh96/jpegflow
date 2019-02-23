@@ -16,23 +16,28 @@ def allowed_file(filename):
 
 @app.route('/', methods=['GET', 'POST'])
 def upload_file():
+    error = None  
+      
     if request.method == 'POST':
         # check if the post request has the file part
         if 'file' not in request.files:
-            flash('No file part')
-            return redirect(url_for('index'))
+            error = "No File Part"
+            return render_template('index.html', title="Images", error=error)
         file = request.files['file']
         # if user does not select file, browser also
         # submit a empty part without filename
         if file.filename == '':
-            flash('No selected file')
-            return redirect(url_for('upload_file'))
+            error = "No Selected File"
+            return render_template('index.html', title="Images", error=error)
+        if not allowed_file(file.filename):
+            error = "File type not supported"
+            return render_template('index.html', title="Images", error=error)
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
             return redirect(url_for('uploaded_file',
                                     filename=filename))
-    return render_template('index.html', title="Images")
+    return render_template('index.html', title="Images", error=error)
 
 @app.route('/show/<filename>')
 def uploaded_file(filename):
@@ -46,3 +51,7 @@ def send_file(filename):
 @app.route('/return_file/<filename>')
 def return_file(filename):
     return send_from_directory(UPLOAD_FOLDER, filename, as_attachment = True)
+
+@app.route('/denoise/<filename>')
+def denoise(filename):
+    pass
