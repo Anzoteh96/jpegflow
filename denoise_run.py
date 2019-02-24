@@ -27,12 +27,12 @@ def _random_crop(img_list):
     i = np.random.randint(0, h - h_crop + 1)
     j = np.random.randint(0, w - w_crop + 1)
     
-    '''
+    
     for img in img_list:
         # Resize if dimensions are too small
         if min(w, h) < crop_size:
             img = tvF.resize(img, (crop_size, crop_size))
-        '''
+        
         
         # Random crop
         cropped_imgs.append(tvF.crop(img, i, j, h_crop, w_crop))
