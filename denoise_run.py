@@ -1,22 +1,13 @@
 import torch
 from torch import nn
 import numpy as np
+from torchvision import transforms
 import torchvision.transforms.functional as tvF
 from PIL import Image
 from io import BytesIO
-import matplotlib.pyplot as plt
-from torchvision import transforms
-
-def load_model(self, ckpt_fname):
-    """Loads model from checkpoint file."""
-
-    print('Loading checkpoint from: {}'.format(ckpt_fname))
-    #if self.use_cuda:
-    self.model.load_state_dict(torch.load(ckpt_fname))
-    #else:
-        #self.model.load_state_dict(torch.load(ckpt_fname, map_location='cpu'))
 
 def load_image(img_path):
+    #Loads image as PIL 
     if "http" in img_path:
         response = requests.get(img_path)
         image = Image.open(BytesIO(response.content)).convert('RGB')
@@ -26,10 +17,7 @@ def load_image(img_path):
     return image
 
 def _random_crop(img_list):
-    """Performs random square crop of fixed size.
-        Works with list so that all items get the same cropped window (e.g. for buffers).
-        """
-    
+    #Performs random square crop of fixed size.
     w, h = img_list[0]._size
     w_crop = (w // 32) * 32
     h_crop = (h // 32) * 32
@@ -54,7 +42,7 @@ def _random_crop(img_list):
     return cropped_imgs
 
 class UNet(nn.Module):
-    """Custom U-Net architecture for Noise2Noise (see Appendix, Table 2)."""
+    """Custom U-Net architecture"""
 
     def __init__(self, in_channels=3, out_channels=3):
         """Initializes U-Net."""
@@ -153,9 +141,9 @@ class UNet(nn.Module):
         return self._block6(concat1)
 
 def denoise(input_image_path):
+    #Fixes grainy image
     model = UNet()
     model.load_state_dict(torch.load('ckpts/gaussian/n2n-gaussian.pt',map_location='cpu'))
-    device = "cpu"
     image = load_image(input_image_path)
     myimage = _random_crop([image])
     preprocess = transforms.ToTensor()
@@ -165,9 +153,9 @@ def denoise(input_image_path):
     return output_image
 
 def detext(input_image_path):
+    #Fixes image with text overlay
     model = UNet()
     model.load_state_dict(torch.load('ckpts/text/n2n-text.pt',map_location='cpu'))
-    device = "cpu"
     image = load_image(input_image_path)
     myimage = _random_crop([image])
     preprocess = transforms.ToTensor()
