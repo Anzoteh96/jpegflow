@@ -3,58 +3,42 @@ from app import app
 from os.path import join, dirname, realpath
 from flask import request, redirect, url_for, render_template, flash, send_from_directory
 from werkzeug.utils import secure_filename
+from PIL import Image
 import sys
 sys.path.append("..")
 import denoise_run
 
 UPLOAD_FOLDER = join(dirname(realpath(__file__)), 'static/uploads/')
-ALLOWED_EXTENSIONS = set(['png', 'jpg','jpeg'])
 
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
-##Image Upload
-def allowed_file(filename):
-    return '.' in filename and \
-           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+@app.route('/')
+def hello(filename="", cleaned_path="", error=""):
+    # if request.method == 'POST':
+    # if request
+        # redirect(request.path)
+    return render_template('index.html', filename=filename, cleaned_path=cleaned_path, error=error)
 
-## Route to upload files
-@app.route('/', methods=['GET', 'POST'])
+# Route to upload files
+@app.route('/upload_file', methods=['GET', 'POST'])
 def upload_file():
-    error = None  
-
     if request.method == 'POST':
-        # check if the post request has the file part
-        if 'file' not in request.files:
-            error = "No File Part"
-            return render_template('index.html', title="Images", error=error)
-        file = request.files['file']
+        try:
+            f = request.files['file']
+            f.save(os.path.join(app.config['UPLOAD_FOLDER'], secure_filename(f.filename)))
+            # return redirect(url_for('hello', filename=f.filename))
+            return render_template('index.html', filename=f.filename)
+        except Exception as e:
+            return render_template('index.html', error=e)
+    return redirect(url_for('hello'))
 
-        # if user does not select file, browser also
-        # submit a empty part without filename
-        if file.filename == '':
-            error = "No Selected File"
-            return render_template('index.html', title="Images", error=error)
-
-        # Check if user submits a PNG image
-        if not allowed_file(file.filename):
-            error = "File type not supported"
-            return render_template('index.html', title="Images", error=error)
-
-        # send file to be output if all formmatting is correct
-        if file and allowed_file(file.filename):
-            filename = secure_filename(file.filename)
-            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-            return redirect(url_for('uploaded_file',
-                                    filename=filename))
-    return render_template('index.html', title="Images", error=error)
-
-@app.route('/show/<filename>')
-def uploaded_file(filename):
-    return render_template('index.html', filename=filename)
+# @app.route('/show/<filename>')
+# def uploaded_file(filename):
+#     return render_template('index.html', filename=filename)
 
 @app.route('/uploads/<filename>')
-def send_file(filename):
-    return send_from_directory(UPLOAD_FOLDER, filename)
+def view_file(filename):
+    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
 
 @app.route('/return_file/<filename>')
@@ -63,7 +47,17 @@ def return_file(filename):
 
 @app.route('/denoise/<filename>')
 def denoise(filename):
+    img = 0
+    fp = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+    print(fp)
     if "text" in filename:
-        return denoise_run.detext(filename)
+        img = denoise_run.detext(fp)
     else:
-        return denoise_run.denoise(filename)
+        img = denoise_run.denoise(fp)
+    print(type(img))
+    # print(img)
+    cleaned_path = UPLOAD_FOLDER + 'cleaned-' + filename
+    img.save(cleaned_path)
+    print(cleaned_path)
+    print(fp)
+    return render_template('index.html', filename=filename, cleaned_path='cleaned-'+filename)
