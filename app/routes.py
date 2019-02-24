@@ -5,7 +5,7 @@ from flask import request, redirect, url_for, render_template, flash, send_from_
 from werkzeug.utils import secure_filename
 
 UPLOAD_FOLDER = join(dirname(realpath(__file__)), 'static/uploads/')
-ALLOWED_EXTENSIONS = set(['png'])
+ALLOWED_EXTENSIONS = set(['png', 'jpg','jpeg'])
 
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
@@ -31,7 +31,7 @@ def upload_file():
         if file.filename == '':
             error = "No Selected File"
             return render_template('index.html', title="Images", error=error)
-            
+
         # Check if user submits a PNG image
         if not allowed_file(file.filename):
             error = "File type not supported"
