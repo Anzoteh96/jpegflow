@@ -158,6 +158,7 @@ def detext(input_image_path):
     myimage = _random_crop([image])
     preprocess = transforms.ToTensor()
     images = preprocess(myimage[0])
-    output = model(torch.stack([images]))[0]
-    output_image = transforms.functional.to_pil_image(output, mode=None)
+    with torch.no_grad():
+        output = model(torch.stack([images]))[0]
+        output_image = transforms.functional.to_pil_image(output, mode=None)
     return output_image
