@@ -3,6 +3,9 @@ from app import app
 from os.path import join, dirname, realpath
 from flask import request, redirect, url_for, render_template, flash, send_from_directory
 from werkzeug.utils import secure_filename
+import sys
+sys.path.append("..")
+import denoise_run
 
 UPLOAD_FOLDER = join(dirname(realpath(__file__)), 'static/uploads/')
 ALLOWED_EXTENSIONS = set(['png', 'jpg','jpeg'])
@@ -60,4 +63,7 @@ def return_file(filename):
 
 @app.route('/denoise/<filename>')
 def denoise(filename):
-    pass
+    if "text" in filename:
+        return denoise_run.detext(filename)
+    else:
+        return denoise_run.denoise(filename)
