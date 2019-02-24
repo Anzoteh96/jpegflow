@@ -7,7 +7,7 @@
      <input type=submit value=Upload>   
 </form>
 
-
+<!-- show error from flash -->
 {% if error %}
 <span style="color: red;">{{ error }}</span>
 {% endif %}
@@ -20,6 +20,7 @@
 <!-- {{ url_for('denoise', filename=filename)}} -- PUT IN HREF -->
 
 
+<!-- Disable all the buttons if there is no file uploaded -->
 {% else %}
 <a href="" target="blank"><button>Download!</button></a>
 <a href="" target="blank"><button>Denoise</button></a>
